@@ -1,34 +1,27 @@
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
-
 async function handleRequest(request) {
-  // Parse the URL and query parameters
-  const url = new URL(request.url)
-  const path = url.pathname.replace('/telegram/', '')
+	const url = new URL(request.url);
   
-  // Construct the Telegram API URL
-  const telegramUrl = `https://api.telegram.org/${path}`
+	// Change the hostname to 'api.telegram.org'
+	url.hostname = 'api.telegram.org';
   
-  // Clone the request
-  const modifiedRequest = new Request(telegramUrl, {
-    method: request.method,
-    headers: request.headers,
-    body: request.body
-  })
+	// Create a new request with the modified URL
+	const newRequest = new Request(url.toString(), request);
   
-  // Forward the request to Telegram API
-  const response = await fetch(modifiedRequest)
+	// Fetch and return the response from the new URL
+	try {
+	  const response = await fetch(newRequest);
+	  return response;
+	} catch (error) {
+	  // Handle errors, if any
+	  return new Response('Internal Server Error', {
+		status: 500,
+		headers: {
+		  'content-type': 'text/plain',
+		},
+	  });
+	}
+  }
   
-  // Return the response with CORS headers
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Content-Type': 'application/json'
-    }
-  })
-}
+  addEventListener('fetch', (event) => {
+	event.respondWith(handleRequest(event.request));
+  });

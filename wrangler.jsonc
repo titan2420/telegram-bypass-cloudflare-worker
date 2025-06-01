@@ -1,0 +1,5 @@
+{
+	    "name": "telegram-bypass-cloudflare-worker",
+	    "compatibility_date": "2025-06-01",
+	    "main": "worker.js"
+}
